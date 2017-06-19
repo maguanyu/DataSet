@@ -1,7 +1,5 @@
 package datasets;
 
-import java.util.List;
-
 /**
  * 
  * @author magy
@@ -9,17 +7,21 @@ import java.util.List;
  */
 public class DataRow {
 
-	private List<Object[]> dataRow;
+	private Object[] dataRow;
 
 	public DataRow() {
 
 	}
 
-	public List<Object[]> getDataRow() {
+	public Object getObject(int fieldIndex) {
+		return dataRow[fieldIndex];
+	}
+
+	public Object[] getDataRow() {
 		return dataRow;
 	}
 
-	public void setDataRow(List<Object[]> dataRow) {
+	public void setDataRow(Object[] dataRow) {
 		this.dataRow = dataRow;
 	}
 

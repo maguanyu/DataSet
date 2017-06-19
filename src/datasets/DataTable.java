@@ -11,10 +11,29 @@ public class DataTable {
 
 	private DataColumn dataColumn;
 
+	private int cursorPosition;
+
 	private List<DataRow> dataRows;
 
 	public DataTable() {
 
+	}
+
+	public boolean next() {
+		if (cursorPosition < dataRows.size()) {
+			cursorPosition++;
+			return true;
+		}
+
+		return false;
+	}
+
+	public Object getObject(int fieldIndex) {
+		return dataRows.get(cursorPosition - 1).getDataRow()[fieldIndex];
+	}
+
+	public Object getObject(String fieldName) {
+		return getObject(dataColumn.getFieldIndex(fieldName));
 	}
 
 	public DataColumn getDataColumn() {
