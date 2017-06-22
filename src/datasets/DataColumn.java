@@ -9,53 +9,99 @@ import java.util.List;
  */
 public class DataColumn {
 
-	private List<Class<?>> types;
-	private List<String> columnNames;
+	private Class<?> DataType;
+	private String columnName;
+	private boolean AllowDBNull = false;
+	private boolean primaryKey = false;
+	private int index;
+	private Object DefaultValue;
+	private long MaxLength;
+	private boolean ReadOnly = false;
+	private DataTable table;
+	private boolean Unique = false;
 
 	public DataColumn() {
 
 	}
 
-	public String getFieldName(int fieldIndex) {
-		return columnNames.get(fieldIndex);
+	public Class<?> getDataType() {
+		return DataType;
 	}
 
-	public int getFieldIndex(String fieldName) {
-		return columnNames.indexOf(fieldName);
+	public void setDataType(Class<?> dataType) {
+		DataType = dataType;
 	}
 
-	public Class<?> getFieldClass(int fieldIndex) {
-		return types.get(fieldIndex);
+	public String getColumnName() {
+		return columnName;
 	}
 
-	public List<Class<?>> getTypes() {
-		return types;
+	public void setColumnName(String columnName) {
+		this.columnName = columnName;
 	}
 
-	public void setTypes(List<Class<?>> types) {
-		this.types = types;
+	public boolean isAllowDBNull() {
+		return AllowDBNull;
 	}
 
-	public List<String> getColumnNames() {
-		return columnNames;
+	public void setAllowDBNull(boolean allowDBNull) {
+		AllowDBNull = allowDBNull;
 	}
 
-	public void setColumnNames(List<String> columnNames) {
-		this.columnNames = columnNames;
+	public boolean isPrimaryKey() {
+		return primaryKey;
 	}
 
-	public int getFieldCount() {
-		return columnNames.size();
+	public void setPrimaryKey(boolean primaryKey) {
+		this.primaryKey = primaryKey;
 	}
 
-	public void addField(String fieldName, Class<?> fieldClass, int fieldIndex) {
-		columnNames.add(fieldIndex, fieldName);
-		types.add(fieldIndex, fieldClass);
+	public int getIndex() {
+		return index;
 	}
 
-	public void addField(String fieldName, Class<?> fieldClass) {
-		columnNames.add(fieldName);
-		types.add(fieldClass);
+	public void setIndex(int index) {
+		this.index = index;
+	}
+
+	public Object getDefaultValue() {
+		return DefaultValue;
+	}
+
+	public void setDefaultValue(Object defaultValue) {
+		DefaultValue = defaultValue;
+	}
+
+	public long getMaxLength() {
+		return MaxLength;
+	}
+
+	public void setMaxLength(long maxLength) {
+		MaxLength = maxLength;
+	}
+
+	public boolean isReadOnly() {
+		return ReadOnly;
+	}
+
+	public void setReadOnly(boolean readOnly) {
+		ReadOnly = readOnly;
+	}
+
+	public DataTable getTable() {
+		return table;
+	}
+
+	public void setTable(DataTable table) {
+		this.table = table;
+	}
+
+	public boolean isUnique() {
+		return Unique;
+	}
+
+	public void setUnique(boolean unique) {
+		Unique = unique;
 	}
 
 }
