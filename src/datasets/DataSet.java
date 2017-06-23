@@ -6,12 +6,19 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
+import org.dom4j.Node;
+import org.dom4j.io.SAXReader;
 
 /**
  * 
@@ -376,4 +383,43 @@ public class DataSet {
 
 		}
 	}
+
+	public void importXML(String path) {
+		SAXReader reader = new SAXReader();
+		try {
+			Document document = reader.read(new File(path));
+
+			Element root = document.getRootElement();
+			System.out.println(root.getName());
+
+			List<Element> list = root.elements();
+			getChildNodes(root);
+//			for (Element e : list) {
+//				List<Element> temp = e.elements();
+//
+//				for (Element element : temp) {
+//					System.out.println(element.getName() + ":" + element.getText());
+//				}
+//
+//			}
+
+		} catch (DocumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private void getChildNodes(Element elem) {
+		System.out.println(elem.getName()+":"+elem.getText());
+		Iterator<Node> it = elem.nodeIterator();
+		while (it.hasNext()) {
+			Node node = it.next();
+			if (node instanceof Element) {
+				Element e1 = (Element) node;
+				getChildNodes(e1);
+			}
+
+		}
+	}
+
 }
