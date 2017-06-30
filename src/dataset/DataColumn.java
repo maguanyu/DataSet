@@ -17,7 +17,7 @@ public class DataColumn {
 	/**
 	 * —ñ–¼
 	 */
-	private String columnName;
+	public String columnName;
 
 	/**
 	 * ‚±‚Ì—ñ‚É null ’l‚ðŠi”[‚Å‚«‚é‚©‚Ç‚¤‚©

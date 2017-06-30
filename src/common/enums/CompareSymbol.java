@@ -1,7 +1,7 @@
 package common.enums;
 
 public enum CompareSymbol {
-	gt(">"), lt("<"), eq("="), desc("desc"), asc("asc"),gteq(">="),lteq("<=");
+	gt(">"), lt("<"), eq("="), desc("desc"), asc("asc"),gteq(">="),lteq("<="),and("and"),or("or");
 
 	private String symbol;
 

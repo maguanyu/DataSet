@@ -2,7 +2,6 @@ package dataset;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -30,6 +29,7 @@ import common.util.DataSetUtil;
  * 
  */
 public class DataTable {
+
 	/**
 	 * DataColumnのリスト
 	 */
@@ -39,11 +39,6 @@ public class DataTable {
 	 * テーブル名
 	 */
 	public String tableName;
-
-	/**
-	 * カーソル
-	 */
-	private int cursorPosition;
 
 	/**
 	 * DataRowのリスト
@@ -104,20 +99,6 @@ public class DataTable {
 		this.primaryKeys = primaryKeys;
 		this.dataColumns = dataColumns;
 		this.dataRows = dataRows;
-	}
-
-	/**
-	 * 次の行
-	 * 
-	 * @return true:問題なし
-	 */
-	public boolean next() {
-		if (cursorPosition < dataRows.size()) {
-			cursorPosition++;
-			return true;
-		}
-
-		return false;
 	}
 
 	/**
@@ -299,6 +280,7 @@ public class DataTable {
 	 *            the tableName to set
 	 */
 	public void setTableName(String tableName) {
+
 		this.tableName = tableName;
 	}
 
@@ -318,25 +300,6 @@ public class DataTable {
 	 */
 	public int getColumnNum() {
 		return dataColumns.size();
-	}
-
-	/**
-	 * cursorPositionを取得します。
-	 * 
-	 * @return the cursorPosition
-	 */
-	public int getCursorPosition() {
-		return cursorPosition;
-	}
-
-	/**
-	 * cursorPositionを設定します
-	 * 
-	 * @param cursorPosition
-	 *            the cursorPosition to set
-	 */
-	public void setCursorPosition(int cursorPosition) {
-		this.cursorPosition = cursorPosition;
 	}
 
 	/**
@@ -537,13 +500,31 @@ public class DataTable {
 		return file;
 	}
 
+	/**
+	 * データテーブルのフィルタです。
+	 * 
+	 * @param filterStr
+	 *            フィルタString
+	 * @return dataRowのリスト
+	 */
 	public List<DataRow> selectByFilter(String filterStr) {
-		List<String> bracketFilters = new ArrayList<>();
-		filterStr = bracketStrHandle(bracketFilters, 0, filterStr);
-		return totalHandler(filterStr, bracketFilters);
+		return selectByFilter(filterStr, null);
 	}
 
+	/**
+	 * データテーブルのフィルタです。
+	 * 
+	 * @param filterStr1
+	 *            フィルタString
+	 * @param filterStr2
+	 *            フィルタString
+	 * @return dataRowのリスト
+	 */
 	public List<DataRow> selectByFilter(String filterStr1, String filterStr2) {
+		if (filterStr1 == null || filterStr1.isEmpty()){
+			sortTotalHandler(filterStr2, dataRows);
+			return dataRows;
+		}
 		List<String> bracketFilters = new ArrayList<>();
 		filterStr1 = bracketStrHandle(bracketFilters, 0, filterStr1);
 		List<DataRow> result = totalHandler(filterStr1, bracketFilters);
@@ -557,6 +538,10 @@ public class DataTable {
 
 	private List<DataRow> selectByFilterHelper(String filterStr1, String filterStr2) {
 		List<DataRow> resultRows = new ArrayList<>();
+		if(filterStr1 == null || filterStr1.isEmpty()){
+			sortTotalHandler(filterStr2, dataRows);
+			return dataRows;
+		}
 
 		if (getDataRows() == null) {
 			return resultRows;
@@ -566,27 +551,27 @@ public class DataTable {
 		if (getDataColumns() == null) {
 			return resultRows;
 		}
-		List<DataColumn> dataColumns = getDataColumns();
-
 		filterStr1 = filterStr1.toLowerCase();
 		String columnName = "";
 		CompareSymbol compareSymbol = null;
 		String columnFilter = "";
-		if (filterStr1.contains(CompareSymbol.gt.getSymbol())) {
+		if (filterStr1.contains(CompareSymbol.gt.getSymbol()) && !filterStr1.contains(CompareSymbol.eq.getSymbol())) {
 			columnName = filterStr1.split(CompareSymbol.gt.getSymbol())[0].trim();
 			compareSymbol = CompareSymbol.gt;
 			columnFilter = filterStr1.split(CompareSymbol.gt.getSymbol())[1].trim();
 			if (columnFilter.contains("'")) {
 				columnFilter = columnFilter.substring(1, columnFilter.length() - 1).trim();
 			}
-		} else if (filterStr1.contains(CompareSymbol.lt.getSymbol())) {
+		} else if (filterStr1.contains(CompareSymbol.lt.getSymbol()) && !filterStr1.contains(CompareSymbol.eq.getSymbol())) {
 			columnName = filterStr1.split(CompareSymbol.lt.getSymbol())[0].trim();
 			compareSymbol = CompareSymbol.lt;
 			columnFilter = filterStr1.split(CompareSymbol.lt.getSymbol())[1].trim();
 			if (columnFilter.contains("'")) {
 				columnFilter = columnFilter.substring(1, columnFilter.length() - 1).trim();
 			}
-		} else if (filterStr1.contains(CompareSymbol.eq.getSymbol())) {
+		} else if (filterStr1.contains(CompareSymbol.eq.getSymbol())
+				&& !filterStr1.contains(CompareSymbol.gt.getSymbol())
+				&& !filterStr1.contains(CompareSymbol.lt.getSymbol())) {
 			columnName = filterStr1.split(CompareSymbol.eq.getSymbol())[0].trim();
 			compareSymbol = CompareSymbol.eq;
 			columnFilter = filterStr1.split(CompareSymbol.eq.getSymbol())[1].trim();
@@ -613,7 +598,7 @@ public class DataTable {
 
 		for (DataRow dataRow : dataRows) {
 			Object[] row = dataRow.getDataRow();
-			if (isSatisfiedRow(row, compareSymbol, columnIndex, columnFilter)) {
+			if (isSatisfiedRow(row, compareSymbol, columnIndex, columnFilter,dataColumns)) {
 				resultRows.add(dataRow);
 			}
 		}
@@ -624,6 +609,9 @@ public class DataTable {
 	}
 
 	private void sortTotalHandler(String filterStr2, List<DataRow> resultRows) {
+		if (filterStr2 == null || filterStr2.isEmpty()) {
+			return;
+		}
 		filterStr2 = filterStr2.toLowerCase();
 
 		String sortColumn = "";
@@ -649,9 +637,8 @@ public class DataTable {
 			public int compare(DataRow o1, DataRow o2) {
 				Object sortedObject1 = o1.getDataRow()[sortColumnIndex];
 				Object sortedObject2 = o2.getDataRow()[sortColumnIndex];
-				if (sortedObject1 instanceof Byte || sortedObject1 instanceof Short || sortedObject1 instanceof Integer
-						|| sortedObject1 instanceof Long || sortedObject1 instanceof Float
-						|| sortedObject1 instanceof Double) {
+				DataColumn dataColumn = dataColumns.get(sortColumnIndex);
+				if (dataColumn.getDataType() == FieldTypeEnum.Double || dataColumn.getDataType() == FieldTypeEnum.Integer) {
 					BigDecimal bd1 = new BigDecimal(sortedObject1.toString());
 					BigDecimal bd2 = new BigDecimal(sortedObject2.toString());
 					return bd1.compareTo(bd2);
@@ -666,13 +653,13 @@ public class DataTable {
 		}
 	}
 
-	private boolean isSatisfiedRow(Object[] row, CompareSymbol compareSymbol, int columnIndex, String columnFilter) {
+	private boolean isSatisfiedRow(Object[] row, CompareSymbol compareSymbol, int columnIndex, String columnFilter, List<DataColumn> dataColumns) {
 		if (columnIndex < 0) {
 			return false;
 		}
 		Object rowColumn = row[columnIndex];
-		if (rowColumn instanceof Byte || rowColumn instanceof Short || rowColumn instanceof Integer
-				|| rowColumn instanceof Long || rowColumn instanceof Float || rowColumn instanceof Double) {
+		DataColumn dataColumn = dataColumns.get(columnIndex);
+		if (dataColumn.getDataType()==FieldTypeEnum.Double || dataColumn.getDataType()==FieldTypeEnum.Integer) {
 			String numberRegex = "^(-?[1-9]\\d*\\.?\\d*)|(-?0\\.\\d*[1-9])|(-?[0])|(-?[0]\\.\\d*)$";
 			if (!columnFilter.matches(numberRegex)) {
 				return false;
@@ -785,7 +772,7 @@ public class DataTable {
 	}
 
 	private List<DataRow> andHandler(String andFilter, List<String> bracketFilters) {
-		String[] singleStr = andFilter.split("AND");
+		String[] singleStr = andFilter.split(CompareSymbol.and.getSymbol());
 		List<List<DataRow>> singleResults = new ArrayList<>();
 		for (String s : singleStr) {
 			s = s.trim();
@@ -812,10 +799,10 @@ public class DataTable {
 	}
 
 	private List<DataRow> bracketHandler(String andFilter) {
-		String[] andStrs = andFilter.split("OR");
+		String[] andStrs = andFilter.split(CompareSymbol.or.getSymbol());
 		List<List<DataRow>> orResults = new ArrayList<>();
 		for (String s : andStrs) {
-			String[] singleStr = s.split("AND");
+			String[] singleStr = s.split(CompareSymbol.and.getSymbol());
 			orResults.add(singleHandler(singleStr));
 		}
 		for (int i = 0; i < orResults.size() - 1; i++) {
@@ -847,7 +834,7 @@ public class DataTable {
 
 	private List<String> orHandler(String testStr) {
 		List<String> andFilters = new ArrayList<>();
-		String[] andStrs = testStr.split("OR");
+		String[] andStrs = testStr.split(CompareSymbol.or.getSymbol());
 		for (String s : andStrs) {
 			andFilters.add(s);
 		}

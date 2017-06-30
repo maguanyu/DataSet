@@ -102,7 +102,7 @@ public class DataSet {
 	 */
 	public DataTable getTable(int index) {
 
-		if (dataTables == null || dataTables.size() < index || tableNames.size() < index) {
+		if (dataTables == null || index < 0 || dataTables.size() < index || tableNames.size() < index) {
 			return null;
 		}
 

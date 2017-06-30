@@ -6,8 +6,12 @@ import static org.junit.Assert.assertThat;
 import java.io.File;
 import java.util.List;
 
+import org.dom4j.DocumentException;
+import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import dataset.DataColumn;
 import dataset.DataRow;
@@ -16,6 +20,8 @@ import dataset.DataTable;
 
 public class DataSetTest {
 	public DataSet dataSet;
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
 
 	@Before
 	public void setUp() throws Exception {
@@ -30,6 +36,7 @@ public class DataSetTest {
 		dataSet.readXML(path);
 		dataSet.removeTableIfExists("RECORD");
 		assertThat(dataSet.getDataTables().size(), is(0));
+		assertThat(dataSet.removeTableIfExists(""), is(false));
 		dataSet.clear();
 
 	}
@@ -40,6 +47,7 @@ public class DataSetTest {
 		dataSet.readXML(path);
 		DataTable dataTable = dataSet.getTable("RECORD");
 		assertThat(dataTable.getTableName(), is("RECORD"));
+		Assert.assertEquals(dataSet.getTable(""), null);
 		dataSet.clear();
 
 	}
@@ -50,6 +58,8 @@ public class DataSetTest {
 		dataSet.readXML(path);
 		DataTable dataTable = dataSet.getTable(0);
 		assertThat(dataTable.getTableName(), is("RECORD"));
+		Assert.assertEquals(dataSet.getTable(-1), null);
+
 		dataSet.clear();
 
 	}
@@ -60,6 +70,8 @@ public class DataSetTest {
 		dataSet.readXML(path);
 		dataSet.getTables();
 		assertThat(dataSet.getTables().size(), is(1));
+		assertThat(dataSet.getTableNames().size(), is(1));
+
 		dataSet.clear();
 
 	}
@@ -70,6 +82,8 @@ public class DataSetTest {
 		dataSet.readXML(path);
 
 		assertThat(dataSet.containsTable("RECORD"), is(true));
+		assertThat(dataSet.containsTable(""), is(false));
+
 		dataSet.clear();
 
 	}
@@ -82,6 +96,30 @@ public class DataSetTest {
 		dataSet.clear();
 		assertThat(dataSet.getTableCount(), is(0));
 
+	}
+
+	@Test
+	public void TestReadCSV() {
+		String path1 = "C:\\Users\\magy\\Desktop\\AaT121TennyumaeTsushoRireki22222.csv";
+
+		thrown.expect(RuntimeException.class);
+		thrown.expectMessage("対象フォルダが不正です。");
+		dataSet.readCSV(path1);
+	}
+
+	@Test
+	public void TestReadXML() {
+		String path1 = "C:\\Users\\magy\\Desktop\\AaT121TennyumaeTsushoRireki22222.csv";
+
+		thrown.expect(RuntimeException.class);
+		thrown.expectMessage("対象フォルダが不正です。");
+		dataSet.readXML(path1);
+	}
+
+	@Test
+	public void TestReadXML2() {
+		String path = "C:\\Users\\magy\\Desktop\\text1.xml";
+ 		dataSet.readXML(path);
 	}
 
 	@Test
@@ -165,6 +203,7 @@ public class DataSetTest {
 
 		dataSet.setDataTables(dataSet.getDataTables());
 		assertThat(dataSet.getTable("testTable").getTableName(), is("testTable"));
+
 		dataSet.clear();
 
 	}
